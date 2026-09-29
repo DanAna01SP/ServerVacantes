@@ -430,3 +430,6 @@ inicializar_almacenamiento()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=DEBUG, port=int(os.environ.get('PORT', 5001)))
+
+# Alias por si cPanel usa su plantilla de passenger_wsgi.py (busca "application" en app.py)
+application = app
