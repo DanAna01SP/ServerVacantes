@@ -3,18 +3,24 @@
 Servidor (Flask + Docker) donde Talento Humano publica las vacantes que muestra
 `https://sanpedroesmicoope.com.gt/pages/empleo.html`.
 
+En producción, el mismo servidor local sirve también la página pública
+(repositorio de la página, carpeta `Paginaweb-main`) a través de Caddy.
+
 | Dirección | Uso |
 |---|---|
+| `https://sanpedroesmicoope.com.gt` | Página pública (archivos de `Paginaweb-main`) |
 | `https://vacantes.sanpedroesmicoope.com.gt/talento-humano` | Talento Humano crea, edita, publica y oculta vacantes |
 | `https://vacantes.sanpedroesmicoope.com.gt/admin` | Administración de usuarios (solo administradores) |
 | `https://vacantes.sanpedroesmicoope.com.gt/api/listar` | Vacantes publicadas (la consume `empleo.html`) |
 
-La página pública sigue en el hosting actual (GoDaddy). Este servidor es aparte.
 
 ## Requisitos
 
 - Servidor Linux (Ubuntu recomendado), siempre encendido, con Docker y Docker Compose.
-- Registro DNS tipo **A**: `vacantes.sanpedroesmicoope.com.gt` → IP pública del servidor.
+- Registros DNS tipo **A** hacia la IP pública del servidor:
+  `sanpedroesmicoope.com.gt`, `www.sanpedroesmicoope.com.gt` y `vacantes.sanpedroesmicoope.com.gt`.
+  **No modificar los registros MX ni los del correo.**
+  Cambiar el dominio principal solo cuando el servidor ya responda (ver paso 5), para evitar caídas.
 - Puertos **80 y 443 TCP** abiertos desde internet hacia el servidor.
   - 443: HTTPS.
   - 80: validación y renovación automática del certificado (Let's Encrypt, vía Caddy).
@@ -28,13 +34,14 @@ La imagen se construye en el servidor con el `Dockerfile` de este repositorio.
 # 1. Docker
 curl -fsSL https://get.docker.com | sudo sh
 
-# 2. Código
-git clone <URL_DEL_REPOSITORIO> servidor-vacantes
-cd servidor-vacantes/produccion
+# 2. Código (los dos repositorios)
+git clone <URL_REPO_PAGINA_WEB> /opt/Cotizador              # contiene Paginaweb-main
+git clone <URL_REPO_SERVIDOR_VACANTES> /opt/servidor-vacantes
+cd /opt/servidor-vacantes/produccion
 
 # 3. Configuración
 cp .env.example .env
-nano .env        # definir ADMIN_CLAVE y SECRET_KEY (openssl rand -hex 32)
+nano .env        # ADMIN_CLAVE, SECRET_KEY (openssl rand -hex 32) y RUTA_PAGINA
 
 # 4. Construir y arrancar
 docker compose up -d --build
@@ -45,9 +52,9 @@ A los 1–2 minutos (emisión del certificado) debe abrir
 `https://vacantes.sanpedroesmicoope.com.gt/talento-humano`.
 Primer acceso: usuario `ADMIN_USUARIO` / clave `ADMIN_CLAVE` del `.env`.
 
-**Después de que este servidor funcione**, publicar en GoDaddy la versión nueva de
-`pages/empleo.html` del repositorio de la página web. Si se publica antes, la sección
-de vacantes muestra "No se pudieron cargar las vacantes".
+**Paso 5 — cambio del dominio principal.** Con `vacantes.` funcionando, apuntar
+`sanpedroesmicoope.com.gt` y `www` a este servidor (hoy apuntan a GoDaddy). Caddy
+obtiene el certificado automáticamente al llegar la primera visita.
 
 ## Variables del `.env`
 
@@ -57,6 +64,7 @@ de vacantes muestra "No se pudieron cargar las vacantes".
 | `SECRET_KEY` | Cadena aleatoria para firmar sesiones. Si cambia, se cierran las sesiones abiertas. |
 | `SITIOS_PERMITIDOS` | Dominios que pueden leer las vacantes publicadas: `https://sanpedroesmicoope.com.gt,https://www.sanpedroesmicoope.com.gt` |
 | `SESSION_COOKIE_SECURE` | `1` en producción (HTTPS). |
+| `RUTA_PAGINA` | Ruta de la carpeta `Paginaweb-main` del repositorio de la página (ej. `/opt/Cotizador/Paginaweb-main`). |
 
 ## Datos y respaldos
 
@@ -71,10 +79,17 @@ docker run --rm -v produccion_datos_vacantes:/datos -v "$PWD":/respaldo alpine \
   tar czf /respaldo/vacantes-$(date +%F).tar.gz -C /datos .
 ```
 
-## Actualizar a una versión nueva
+## Actualizar la página pública
 
 ```bash
-cd servidor-vacantes
+cd /opt/Cotizador
+git pull          # los cambios se ven al instante, sin reiniciar
+```
+
+## Actualizar el servidor de vacantes
+
+```bash
+cd /opt/servidor-vacantes
 git pull
 cd produccion
 docker compose up -d --build

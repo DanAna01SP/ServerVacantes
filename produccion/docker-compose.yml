@@ -1,4 +1,6 @@
-# Servidor de producción: https://vacantes.sanpedroesmicoope.com.gt
+# Servidor local de producción:
+#   https://sanpedroesmicoope.com.gt           -> página pública (Paginaweb-main)
+#   https://vacantes.sanpedroesmicoope.com.gt  -> vacantes, Admin y Talento Humano
 # La imagen se construye con el Dockerfile del repositorio (carpeta de arriba).
 #
 #   git pull                       # trae la última versión del código
@@ -25,6 +27,8 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Carpeta del repositorio de la página pública (ruta en RUTA_PAGINA del .env)
+      - ${RUTA_PAGINA:-../../Paginaweb-main}:/srv/pagina:ro
       - caddy_datos:/data
       - caddy_config:/config
 

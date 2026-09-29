@@ -1,6 +1,21 @@
-# Proxy con HTTPS automático (Let's Encrypt) delante del contenedor de vacantes.
-# Requisitos: el registro DNS "vacantes" apunta a la IP pública de este servidor
-# y los puertos 80 y 443 están abiertos hacia él.
+# Servidor local de la cooperativa: página pública + servidor de vacantes.
+# HTTPS automático (Let's Encrypt). Requisitos: los registros DNS A del dominio,
+# "www" y "vacantes" apuntan a la IP pública de este servidor y los puertos
+# 80 y 443 están abiertos hacia él.
+
+# Página pública (repositorio Paginaweb-main, montado en /srv/pagina)
+sanpedroesmicoope.com.gt, www.sanpedroesmicoope.com.gt {
+    root * /srv/pagina
+    encode gzip
+
+    # Nunca publicar la carpeta de git ni archivos ocultos
+    @ocultos path /.* /*/.*
+    respond @ocultos 404
+
+    file_server
+}
+
+# Servidor de vacantes (Admin, Talento Humano y API que lee empleo.html)
 vacantes.sanpedroesmicoope.com.gt {
     encode gzip
     reverse_proxy web:5001
