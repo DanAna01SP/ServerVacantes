@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Talento Humano · Cooperativa San Pedro</title>
-    <link rel="icon" type="image/png" href="/img/imagotipo.png">
+    <link rel="icon" type="image/png" href="img/imagotipo.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -146,7 +146,7 @@
     <!-- ================= LOGIN ================= -->
     <div class="login-wrap" id="vistaLogin" hidden>
         <div class="login-card">
-            <img src="/img/imagotipo.png" alt="Cooperativa San Pedro">
+            <img src="img/imagotipo.png" alt="Cooperativa San Pedro">
             <div class="badge-admin"><i class="bi bi-people-fill"></i> Talento Humano</div>
             <h1>Acceso al Sistema</h1>
             <p class="sub">Ingresa para publicar las plazas de empleo</p>
@@ -170,11 +170,11 @@
     <div id="vistaPanel" hidden>
         <header class="adm-header">
             <div class="izq">
-                <img src="/img/logo-blanco.png" alt="Logo">
+                <img src="img/logo-blanco.png" alt="Logo">
                 <div class="titulo">Talento Humano · Vacantes<span id="nombreUsuario">Cooperativa San Pedro R.L.</span></div>
             </div>
             <div class="der">
-                <a class="btn btn-gris" href="/admin" id="enlaceUsuarios" hidden><i class="bi bi-people"></i> Usuarios</a>
+                <a class="btn btn-gris" href="admin" id="enlaceUsuarios" hidden><i class="bi bi-people"></i> Usuarios</a>
                 <a class="btn btn-gris" href="https://sanpedroesmicoope.com.gt/pages/empleo.html" target="_blank" rel="noopener"><i class="bi bi-eye"></i> Ver página de empleo</a>
                 <button class="btn btn-gris" id="btnSalir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
             </div>
@@ -249,7 +249,7 @@
             const res = await fetch(ruta, { credentials: 'same-origin', ...opciones });
             let data = {};
             try { data = await res.json(); } catch (_) {}
-            if (res.status === 401 && ruta !== '/api/login') {
+            if (res.status === 401 && ruta !== 'api/login') {
                 mostrarLogin();
                 throw new Error(data.error || 'Tu sesión expiró. Ingresa de nuevo.');
             }
@@ -278,7 +278,7 @@
             btn.disabled = true;
             $('errLogin').hidden = true;
             try {
-                const data = await api('/api/login', { method: 'POST', body: new FormData(e.target) });
+                const data = await api('api/login', { method: 'POST', body: new FormData(e.target) });
                 $('clave').value = '';
                 mostrarPanel(data.usuario);
             } catch (err) {
@@ -291,7 +291,7 @@
         });
 
         $('btnSalir').addEventListener('click', async () => {
-            try { await api('/api/logout', { method: 'POST' }); } catch (_) {}
+            try { await api('api/logout', { method: 'POST' }); } catch (_) {}
             limpiarForm();
             mostrarLogin();
         });
@@ -299,7 +299,7 @@
         /* ---------- Lista ---------- */
         async function cargarVacantes() {
             try {
-                const data = await api('/api/listar?todas=1');
+                const data = await api('api/listar?todas=1');
                 vacantes = data.vacantes || [];
                 pintarLista();
             } catch (err) {
@@ -362,7 +362,7 @@
                 fd.append('activa', v.activa ? '0' : '1');
                 btn.disabled = true;
                 try {
-                    await api('/api/guardar', { method: 'POST', body: fd });
+                    await api('api/guardar', { method: 'POST', body: fd });
                     toast(v.activa ? 'Vacante ocultada' : 'Vacante publicada', 'ok');
                     await cargarVacantes();
                 } catch (err) { toast(err.message, 'error'); btn.disabled = false; }
@@ -374,7 +374,7 @@
                 fd.append('id', v.id);
                 btn.disabled = true;
                 try {
-                    await api('/api/eliminar', { method: 'POST', body: fd });
+                    await api('api/eliminar', { method: 'POST', body: fd });
                     if ($('vacId').value === v.id) limpiarForm();
                     toast('Vacante eliminada', 'ok');
                     await cargarVacantes();
@@ -470,7 +470,7 @@
             const editando = !!$('vacId').value;
             btn.disabled = true;
             try {
-                await api('/api/guardar', { method: 'POST', body: fd });
+                await api('api/guardar', { method: 'POST', body: fd });
                 toast(editando ? 'Cambios guardados' : 'Vacante publicada', 'ok');
                 limpiarForm();
                 await cargarVacantes();
@@ -485,7 +485,7 @@
         /* ---------- Inicio ---------- */
         (async function iniciar() {
             try {
-                const data = await api('/api/sesion');
+                const data = await api('api/sesion');
                 data.logueado ? mostrarPanel(data.usuario) : mostrarLogin();
             } catch (_) {
                 mostrarLogin();

@@ -31,7 +31,7 @@ import time
 import uuid
 from functools import wraps
 
-from flask import Flask, request, jsonify, session, send_from_directory, redirect
+from flask import Flask, request, jsonify, session, send_from_directory, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
@@ -121,6 +121,13 @@ def borrar_imagen(imagen_url):
     if os.path.exists(ruta):
         os.remove(ruta)
 
+def vacante_publica(v):
+    """Agrega a la imagen el prefijo donde está montada la app (ej. /vacantes en cPanel)."""
+    imagen = v.get('imagenUrl', '')
+    if imagen.startswith('/'):
+        return {**v, 'imagenUrl': request.script_root + imagen}
+    return v
+
 def extension_permitida(nombre_archivo):
     return '.' in nombre_archivo and nombre_archivo.rsplit('.', 1)[1].lower() in EXTENSIONES_PERMITIDAS
 
@@ -187,7 +194,7 @@ def permitir_sitio_publico(respuesta):
 # ---------- Páginas ----------
 @app.route('/')
 def inicio():
-    return redirect('/talento-humano')
+    return redirect(url_for('pagina_talento'))
 
 @app.route('/admin')
 def pagina_admin():
@@ -323,7 +330,7 @@ def listar():
         vacantes = [v for v in vacantes if v.get('activa')]
 
     vacantes.sort(key=lambda v: v.get('creado', 0), reverse=True)
-    respuesta = jsonify({'vacantes': vacantes})
+    respuesta = jsonify({'vacantes': [vacante_publica(v) for v in vacantes]})
     respuesta.headers['Cache-Control'] = 'no-store'
     return respuesta
 
@@ -380,7 +387,7 @@ def guardar():
             vacantes.append(datos_vacante)
 
         guardar_vacantes(vacantes)
-    return jsonify({'ok': True, 'vacante': datos_vacante})
+    return jsonify({'ok': True, 'vacante': vacante_publica(datos_vacante)})
 
 @app.route('/api/eliminar', methods=['POST'])
 @requiere_rol('talento', 'admin')
