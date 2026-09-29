@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Usuarios · Admin · Cooperativa San Pedro</title>
+    <link rel="icon" type="image/png" href="/img/imagotipo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        :root { --azul: #033E81; --azul-osc: #022d5e; --verde: #4EAE33; --rojo: #c0392b; }
+        body { background: #f4f6fa; color: #333; min-height: 100vh; }
+        [hidden] { display: none !important; }
+
+        /* ---------- LOGIN / SIN PERMISO ---------- */
+        .login-wrap {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-osc) 100%);
+        }
+        .login-card {
+            background: white; border-radius: 24px; padding: 44px 36px 36px; width: 100%; max-width: 420px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.35); text-align: center;
+        }
+        .login-card img { height: 72px; margin-bottom: 20px; }
+        .badge-admin {
+            display: inline-block; background: rgba(3,62,129,0.08); color: var(--azul); border-radius: 50px;
+            padding: 5px 16px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .login-card h1 { font-size: 1.5rem; font-weight: 900; color: var(--azul); }
+        .login-card .sub { color: #999; font-size: 0.85rem; margin: 4px 0 26px; }
+        .login-card form { text-align: left; }
+        .login-card .back { margin-top: 20px; }
+        .login-card .back a { color: #aaa; font-size: 0.82rem; text-decoration: none; }
+        .login-card .back a:hover { color: var(--azul); }
+        .login-card .fila-botones { display: flex; flex-direction: column; gap: 10px; }
+
+        /* ---------- CAMPOS ---------- */
+        label.campo { display: block; font-size: 0.8rem; font-weight: 700; color: #555; margin-bottom: 6px; }
+        label.campo small { font-weight: 400; color: #999; }
+        input[type=text], input[type=email], input[type=password], select {
+            width: 100%; border: 2px solid #e9ecef; border-radius: 10px; padding: 10px 14px; font-size: 0.95rem;
+            color: #333; outline: none; margin-bottom: 16px; transition: border-color .2s, box-shadow .2s; background: white;
+        }
+        input:focus, select:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(3,62,129,0.1); }
+
+        .btn {
+            border: none; border-radius: 10px; padding: 10px 18px; font-size: 0.92rem; font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: transform .15s, box-shadow .2s, opacity .2s;
+            text-decoration: none;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { opacity: .6; cursor: wait; transform: none; }
+        .btn-verde { background: linear-gradient(135deg, var(--verde), #3c9228); color: white; }
+        .btn-verde:hover { box-shadow: 0 8px 22px rgba(78,174,51,0.35); }
+        .btn-gris { background: #eef1f5; color: #555; }
+        .btn-bloque { width: 100%; justify-content: center; padding: 12px; font-size: 1rem; }
+
+        .alerta {
+            background: #fff5f5; border: 1px solid #ffc9c9; color: var(--rojo); border-radius: 10px;
+            padding: 10px 14px; font-size: 0.85rem; margin-bottom: 16px;
+        }
+
+        /* ---------- PANEL ---------- */
+        .adm-header {
+            background: linear-gradient(135deg, var(--azul), var(--azul-osc)); color: white; padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        }
+        .adm-header img { height: 40px; }
+        .adm-header .izq { display: flex; align-items: center; gap: 14px; }
+        .adm-header .titulo { font-weight: 700; font-size: 1.05rem; line-height: 1.2; }
+        .adm-header .titulo span { display: block; font-weight: 300; font-size: 0.78rem; opacity: .8; }
+        .adm-header .der { display: flex; gap: 8px; flex-wrap: wrap; }
+        .adm-header .btn-gris { background: rgba(255,255,255,0.12); color: white; }
+
+        .adm-main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+        .tarjeta { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 24px; min-width: 0; }
+        .tarjeta h2 { font-size: 1.15rem; color: var(--azul); font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .form-sticky { position: sticky; top: 20px; }
+
+        .interruptor { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; cursor: pointer; font-size: 0.92rem; user-select: none; }
+        .interruptor input { display: none; }
+        .interruptor .pista { width: 44px; height: 24px; background: #ccd3dc; border-radius: 12px; position: relative; transition: background .2s; flex-shrink: 0; }
+        .interruptor .pista::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: left .2s; }
+        .interruptor input:checked + .pista { background: var(--verde); }
+        .interruptor input:checked + .pista::after { left: 23px; }
+        .acciones-form { display: flex; gap: 8px; }
+        .acciones-form .btn-verde { flex: 1; justify-content: center; }
+
+        .lista-cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 10px; flex-wrap: wrap; }
+        .lista-cab h2 { margin: 0; }
+        .contador { font-size: 0.85rem; color: #888; }
+
+        .tabla-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: .5px; color: #888; font-weight: 700; padding: 8px 10px; border-bottom: 2px solid #edf0f4; white-space: nowrap; }
+        td { padding: 12px 10px; border-bottom: 1px solid #edf0f4; vertical-align: middle; }
+        tr.inactivo td { opacity: .55; }
+        .u-nombre { font-weight: 700; color: var(--azul); }
+        .u-usuario { font-size: 0.82rem; color: #777; word-break: break-all; }
+        .tu { font-size: 0.7rem; font-weight: 700; color: var(--verde); margin-left: 4px; }
+        .rol { display: inline-block; font-size: 0.72rem; font-weight: 700; border-radius: 50px; padding: 3px 10px; white-space: nowrap; }
+        .rol.admin { background: rgba(3,62,129,0.1); color: var(--azul); }
+        .rol.talento { background: rgba(78,174,51,0.12); color: #2f7d1d; }
+        .estado { font-size: 0.8rem; white-space: nowrap; }
+        .estado.si { color: #2f7d1d; }
+        .estado.no { color: #999; }
+        .acciones { display: flex; gap: 4px; justify-content: flex-end; }
+        .acciones button { background: none; border: 1px solid #e3e7ed; border-radius: 8px; padding: 6px 10px; cursor: pointer; color: #555; font-size: 0.85rem; }
+        .acciones button:hover { color: var(--azul); border-color: var(--azul); }
+        .acciones button.borrar:hover { color: var(--rojo); border-color: var(--rojo); }
+        .acciones button:disabled { opacity: .35; cursor: not-allowed; }
+
+        .vacio { text-align: center; color: #999; padding: 50px 10px; }
+        .vacio i { font-size: 2.4rem; display: block; margin-bottom: 8px; color: #c5ccd6; }
+
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px);
+            background: #333; color: white; padding: 12px 22px; border-radius: 10px; font-size: 0.9rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25); transition: transform .3s; z-index: 50; max-width: calc(100% - 32px);
+        }
+        .toast.ver { transform: translateX(-50%) translateY(0); }
+        .toast.ok { background: #2f7d1d; }
+        .toast.error { background: var(--rojo); }
+
+        @media (max-width: 900px) {
+            .adm-main { grid-template-columns: 1fr; }
+            .form-sticky { position: static; }
+        }
+        @media (max-width: 600px) {
+            .adm-header { padding: 12px 16px; }
+            .adm-header .titulo span { display: none; }
+            .adm-main { padding: 16px 16px 40px; }
+            .tarjeta { padding: 18px; }
+            thead { display: none; }
+            table, tbody, tr, td { display: block; width: 100%; }
+            tr { border-bottom: 1px solid #edf0f4; padding: 10px 0; }
+            td { border: none; padding: 4px 0; }
+            .acciones { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= LOGIN ================= -->
+    <div class="login-wrap" id="vistaLogin" hidden>
+        <div class="login-card">
+            <img src="/img/imagotipo.png" alt="Cooperativa San Pedro">
+            <div class="badge-admin"><i class="bi bi-shield-lock-fill"></i> Administración</div>
+            <h1>Acceso al Sistema</h1>
+            <p class="sub">Ingresa para administrar los usuarios</p>
+
+            <div class="alerta" id="errLogin" hidden></div>
+
+            <form id="formLogin" autocomplete="on">
+                <label class="campo" for="loginUsuario">Usuario</label>
+                <input type="text" id="loginUsuario" name="usuario" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+                <label class="campo" for="loginClave">Contraseña</label>
+                <input type="password" id="loginClave" name="clave" autocomplete="current-password" required>
+                <button type="submit" class="btn btn-verde btn-bloque" id="btnLogin">
+                    <i class="bi bi-box-arrow-in-right"></i> Ingresar
+                </button>
+            </form>
+            <div class="back"><a href="https://sanpedroesmicoope.com.gt/"><i class="bi bi-arrow-left"></i> Volver al sitio web</a></div>
+        </div>
+    </div>
+
+    <!-- ================= SIN PERMISO ================= -->
+    <div class="login-wrap" id="vistaSinPermiso" hidden>
+        <div class="login-card">
+            <img src="/img/imagotipo.png" alt="Cooperativa San Pedro">
+            <div class="badge-admin"><i class="bi bi-lock-fill"></i> Solo administradores</div>
+            <h1>Sin permiso</h1>
+            <p class="sub">Tu usuario es de Talento Humano. Desde ahí puedes gestionar las vacantes.</p>
+            <div class="fila-botones">
+                <a class="btn btn-verde btn-bloque" href="/talento-humano"><i class="bi bi-people-fill"></i> Ir a Talento Humano</a>
+                <button class="btn btn-gris btn-bloque" data-salir><i class="bi bi-box-arrow-right"></i> Entrar con otro usuario</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= PANEL ================= -->
+    <div id="vistaPanel" hidden>
+        <header class="adm-header">
+            <div class="izq">
+                <img src="/img/logo-blanco.png" alt="Logo">
+                <div class="titulo">Administración de Usuarios<span id="nombreUsuario">Cooperativa San Pedro R.L.</span></div>
+            </div>
+            <div class="der">
+                <a class="btn btn-gris" href="/talento-humano"><i class="bi bi-briefcase"></i> Talento Humano</a>
+                <button class="btn btn-gris" data-salir><i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
+            </div>
+        </header>
+
+        <main class="adm-main">
+            <!-- Formulario -->
+            <section class="tarjeta form-sticky">
+                <h2 id="tituloForm"><i class="bi bi-person-plus"></i> Nuevo usuario</h2>
+                <form id="formUsuario" novalidate autocomplete="off">
+                    <input type="hidden" name="id" id="uId">
+
+                    <label class="campo" for="uNombre">Nombre completo *</label>
+                    <input type="text" id="uNombre" name="nombre" maxlength="200" required placeholder="Ej. María López">
+
+                    <label class="campo" for="uUsuario">Usuario * <small>(sin espacios, ej. mlopez)</small></label>
+                    <input type="text" id="uUsuario" name="usuario" maxlength="50" required placeholder="Ej. mlopez" autocomplete="off" autocapitalize="off" spellcheck="false" pattern="[A-Za-z0-9._-]{3,50}">
+
+                    <label class="campo" for="uRol">Rol *</label>
+                    <select id="uRol" name="rol">
+                        <option value="talento">Talento Humano — gestiona vacantes</option>
+                        <option value="admin">Administrador — gestiona usuarios y vacantes</option>
+                    </select>
+
+                    <label class="campo" for="uClave">Contraseña <small id="ayudaClave">(mínimo 8 caracteres)</small></label>
+                    <input type="password" id="uClave" name="clave" autocomplete="new-password">
+
+                    <label class="interruptor">
+                        <input type="checkbox" id="uActivo" checked>
+                        <span class="pista"></span>
+                        <span>Usuario activo (puede iniciar sesión)</span>
+                    </label>
+
+                    <div class="alerta" id="errForm" hidden></div>
+
+                    <div class="acciones-form">
+                        <button type="submit" class="btn btn-verde" id="btnGuardar"><i class="bi bi-check-circle"></i> <span>Crear usuario</span></button>
+                        <button type="button" class="btn btn-gris" id="btnCancelar" hidden>Cancelar</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Lista -->
+            <section class="tarjeta">
+                <div class="lista-cab">
+                    <h2><i class="bi bi-people"></i> Usuarios</h2>
+                    <span class="contador" id="contador"></span>
+                </div>
+                <div id="listaUsuarios"><div class="vacio"><i class="bi bi-hourglass-split"></i>Cargando…</div></div>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const NOMBRES_ROL = { admin: 'Administrador', talento: 'Talento Humano' };
+        const CLAVE_MINIMA = 8;
+        let usuarios = [];
+        let yo = null;
+
+        const escapar = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        function toast(msg, tipo) {
+            const t = $('toast');
+            t.textContent = msg;
+            t.className = 'toast ver ' + (tipo || '');
+            clearTimeout(t._t);
+            t._t = setTimeout(() => t.className = 'toast', 3200);
+        }
+
+        async function api(ruta, opciones = {}) {
+            const res = await fetch(ruta, { credentials: 'same-origin', ...opciones });
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+            if (res.status === 401 && ruta !== '/api/login') {
+                mostrarVista('vistaLogin');
+                throw new Error(data.error || 'Tu sesión expiró. Ingresa de nuevo.');
+            }
+            if (res.status === 403) {
+                mostrarVista('vistaSinPermiso');
+                throw new Error(data.error || 'Sin permiso');
+            }
+            if (!res.ok) throw new Error(data.error || 'Error del servidor (' + res.status + ')');
+            return data;
+        }
+
+        /* ---------- Vistas ---------- */
+        function mostrarVista(id) {
+            ['vistaLogin', 'vistaSinPermiso', 'vistaPanel'].forEach(v => $(v).hidden = v !== id);
+            if (id === 'vistaLogin') $('loginUsuario').focus();
+        }
+
+        function entrar(usuario) {
+            yo = usuario;
+            if (usuario.rol !== 'admin') return mostrarVista('vistaSinPermiso');
+            $('nombreUsuario').textContent = usuario.nombre + ' · Administrador';
+            mostrarVista('vistaPanel');
+            cargarUsuarios();
+        }
+
+        /* ---------- Login / logout ---------- */
+        $('formLogin').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = $('btnLogin');
+            btn.disabled = true;
+            $('errLogin').hidden = true;
+            try {
+                const data = await api('/api/login', { method: 'POST', body: new FormData(e.target) });
+                $('loginClave').value = '';
+                entrar(data.usuario);
+            } catch (err) {
+                $('errLogin').textContent = err.message;
+                $('errLogin').hidden = false;
+                $('loginClave').value = '';
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        document.querySelectorAll('[data-salir]').forEach(b => b.addEventListener('click', async () => {
+            try { await api('/api/logout', { method: 'POST' }); } catch (_) {}
+            yo = null;
+            limpiarForm();
+            mostrarVista('vistaLogin');
+        }));
+
+        /* ---------- Lista ---------- */
+        async function cargarUsuarios() {
+            try {
+                const data = await api('/api/usuarios');
+                usuarios = data.usuarios || [];
+                pintarLista();
+            } catch (err) {
+                $('listaUsuarios').innerHTML = `<div class="vacio"><i class="bi bi-exclamation-triangle"></i>${escapar(err.message)}</div>`;
+            }
+        }
+
+        function pintarLista() {
+            const activos = usuarios.filter(u => u.activo).length;
+            $('contador').textContent = `${activos} activo${activos === 1 ? '' : 's'} · ${usuarios.length} en total`;
+
+            if (!usuarios.length) {
+                $('listaUsuarios').innerHTML = '<div class="vacio"><i class="bi bi-inbox"></i>No hay usuarios.</div>';
+                return;
+            }
+
+            $('listaUsuarios').innerHTML = `
+                <div class="tabla-wrap"><table>
+                    <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>${usuarios.map(u => {
+                        const soyYo = yo && u.id === yo.id;
+                        return `
+                        <tr class="${u.activo ? '' : 'inactivo'}">
+                            <td>
+                                <div class="u-nombre">${escapar(u.nombre)}${soyYo ? '<span class="tu">(tú)</span>' : ''}</div>
+                                <div class="u-usuario"><i class="bi bi-person"></i> ${escapar(u.usuario)}</div>
+                            </td>
+                            <td><span class="rol ${escapar(u.rol)}">${escapar(NOMBRES_ROL[u.rol] || u.rol)}</span></td>
+                            <td><span class="estado ${u.activo ? 'si' : 'no'}"><i class="bi ${u.activo ? 'bi-check-circle-fill' : 'bi-slash-circle'}"></i> ${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+                            <td><div class="acciones">
+                                <button data-accion="editar" data-id="${escapar(u.id)}" title="Editar"><i class="bi bi-pencil"></i></button>
+                                <button data-accion="eliminar" data-id="${escapar(u.id)}" class="borrar" title="${soyYo ? 'No puedes eliminarte a ti mismo' : 'Eliminar'}" ${soyYo ? 'disabled' : ''}><i class="bi bi-trash"></i></button>
+                            </div></td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table></div>`;
+        }
+
+        $('listaUsuarios').addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-accion]');
+            if (!btn) return;
+            const u = usuarios.find(x => x.id === btn.dataset.id);
+            if (!u) return;
+
+            if (btn.dataset.accion === 'editar') return editar(u);
+
+            if (btn.dataset.accion === 'eliminar') {
+                if (!confirm(`¿Eliminar al usuario "${u.nombre}" (${u.usuario})? Ya no podrá iniciar sesión.`)) return;
+                const fd = new FormData();
+                fd.append('id', u.id);
+                btn.disabled = true;
+                try {
+                    await api('/api/usuarios/eliminar', { method: 'POST', body: fd });
+                    if ($('uId').value === u.id) limpiarForm();
+                    toast('Usuario eliminado', 'ok');
+                    await cargarUsuarios();
+                } catch (err) { toast(err.message, 'error'); btn.disabled = false; }
+            }
+        });
+
+        /* ---------- Formulario ---------- */
+        function editar(u) {
+            $('uId').value = u.id;
+            $('uNombre').value = u.nombre || '';
+            $('uUsuario').value = u.usuario || '';
+            $('uRol').value = u.rol;
+            $('uClave').value = '';
+            $('uActivo').checked = !!u.activo;
+            $('ayudaClave').textContent = '(déjala vacía para no cambiarla)';
+            $('tituloForm').innerHTML = '<i class="bi bi-pencil-square"></i> Editar usuario';
+            $('btnGuardar').querySelector('span').textContent = 'Guardar cambios';
+            $('btnCancelar').hidden = false;
+            $('errForm').hidden = true;
+            $('formUsuario').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            $('uNombre').focus();
+        }
+
+        function limpiarForm() {
+            $('formUsuario').reset();
+            $('uId').value = '';
+            $('uActivo').checked = true;
+            $('ayudaClave').textContent = `(mínimo ${CLAVE_MINIMA} caracteres)`;
+            $('tituloForm').innerHTML = '<i class="bi bi-person-plus"></i> Nuevo usuario';
+            $('btnGuardar').querySelector('span').textContent = 'Crear usuario';
+            $('btnCancelar').hidden = true;
+            $('errForm').hidden = true;
+        }
+        $('btnCancelar').addEventListener('click', limpiarForm);
+
+        $('formUsuario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const err = $('errForm');
+            const mostrarError = (msg, campo) => { err.textContent = msg; err.hidden = false; if (campo) $(campo).focus(); };
+            err.hidden = true;
+
+            const editando = !!$('uId').value;
+            const clave = $('uClave').value;
+            if (!$('uNombre').value.trim()) return mostrarError('El nombre es obligatorio.', 'uNombre');
+            if (!/^[A-Za-z0-9._-]{3,50}$/.test($('uUsuario').value.trim())) return mostrarError('El usuario debe tener de 3 a 50 caracteres: letras, números, punto, guion o guion bajo, sin espacios.', 'uUsuario');
+            if (!editando && !clave) return mostrarError('La contraseña es obligatoria para un usuario nuevo.', 'uClave');
+            if (clave && clave.length < CLAVE_MINIMA) return mostrarError(`La contraseña debe tener al menos ${CLAVE_MINIMA} caracteres.`, 'uClave');
+
+            const fd = new FormData(e.target);
+            fd.set('activo', $('uActivo').checked ? '1' : '0');
+
+            const btn = $('btnGuardar');
+            btn.disabled = true;
+            try {
+                const data = await api('/api/usuarios/guardar', { method: 'POST', body: fd });
+                toast(editando ? 'Cambios guardados' : 'Usuario creado', 'ok');
+                limpiarForm();
+                // Si me quité a mí mismo el rol de admin o me desactivé, recargo la sesión
+                if (yo && data.usuario.id === yo.id && (data.usuario.rol !== 'admin' || !data.usuario.activo)) {
+                    return iniciar();
+                }
+                await cargarUsuarios();
+            } catch (ex) {
+                mostrarError(ex.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        /* ---------- Inicio ---------- */
+        async function iniciar() {
+            try {
+                const data = await api('/api/sesion');
+                data.logueado ? entrar(data.usuario) : mostrarVista('vistaLogin');
+            } catch (_) {
+                mostrarVista('vistaLogin');
+            }
+        }
+        iniciar();
+    </script>
+</body>
+</html>

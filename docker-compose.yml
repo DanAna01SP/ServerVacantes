@@ -1,0 +1,19 @@
+# Desarrollo / pruebas en tu PC:  docker compose up -d --build
+# Producción: ver la carpeta "produccion".
+services:
+  web:
+    build: .
+    image: danana01sp/sanpedro-web:latest
+    container_name: sanpedro-web
+    restart: unless-stopped
+    ports:
+      - "${PUERTO:-5001}:5001"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # Usuarios, vacantes e imágenes subidas persisten aquí
+      - datos_vacantes:/datos
+
+volumes:
+  datos_vacantes:

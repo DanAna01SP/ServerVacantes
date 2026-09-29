@@ -1,0 +1,10 @@
+.git
+.env
+**/__pycache__
+data
+uploads
+produccion
+Dockerfile
+docker-compose.yml
+.dockerignore
+.gitignore

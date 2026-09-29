@@ -1,0 +1,7 @@
+# Proxy con HTTPS automático (Let's Encrypt) delante del contenedor de vacantes.
+# Requisitos: el registro DNS "vacantes" apunta a la IP pública de este servidor
+# y los puertos 80 y 443 están abiertos hacia él.
+vacantes.sanpedroesmicoope.com.gt {
+    encode gzip
+    reverse_proxy web:5001
+}

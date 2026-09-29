@@ -1,0 +1,34 @@
+# Servidor de producción: https://vacantes.sanpedroesmicoope.com.gt
+# La imagen se construye con el Dockerfile del repositorio (carpeta de arriba).
+#
+#   git pull                       # trae la última versión del código
+#   docker compose up -d --build   # construye y arranca (o actualiza) todo
+services:
+  web:
+    build: ..
+    image: sanpedro-vacantes:latest
+    container_name: sanpedro-web
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Usuarios, vacantes e imágenes subidas: NO se borran al actualizar
+      - datos_vacantes:/datos
+
+  caddy:
+    image: caddy:2
+    container_name: sanpedro-caddy
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_datos:/data
+      - caddy_config:/config
+
+volumes:
+  datos_vacantes:
+  caddy_datos:
+  caddy_config:
