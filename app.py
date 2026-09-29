@@ -54,7 +54,7 @@ RUTA_UPLOADS_WEB = '/uploads/'
 
 # Solo se usan para crear el primer administrador
 ADMIN_USUARIO = os.environ.get('ADMIN_USUARIO', 'Administrador').strip()
-ADMIN_CLAVE_HASH = os.environ.get('ADMIN_CLAVE_HASH') or generate_password_hash(os.environ.get('ADMIN_CLAVE', '123456'))
+ADMIN_CLAVE_HASH = os.environ.get('ADMIN_CLAVE_HASH') or generate_password_hash(os.environ.get('ADMIN_CLAVE', '123456'), method='pbkdf2:sha256')
 
 SECRET_KEY = os.environ.get('SECRET_KEY') or uuid.uuid4().hex
 DEBUG = os.environ.get('FLASK_DEBUG', '0') == '1'
@@ -68,6 +68,9 @@ ROLES = {'admin': 'Administrador', 'talento': 'Talento Humano'}
 CLAVE_MINIMA = 8
 # Letras, números, punto, guion y guion bajo. Se compara sin distinguir mayúsculas.
 PATRON_USUARIO = re.compile(r'^[A-Za-z0-9._-]{3,50}$')
+
+# pbkdf2 funciona en cualquier Python (el scrypt por defecto falta en algunos cPanel/CloudLinux)
+METODO_CLAVE = 'pbkdf2:sha256'
 
 EXTENSIONES_PERMITIDAS = {'jpg', 'jpeg', 'png', 'webp'}
 TAMANO_MAXIMO_MB = 8
@@ -281,7 +284,7 @@ def guardar_usuario():
             'nombre': nombre,
             'rol': rol,
             'activo': activo,
-            'claveHash': generate_password_hash(clave) if clave else anterior.get('claveHash'),
+            'claveHash': generate_password_hash(clave, method=METODO_CLAVE) if clave else anterior.get('claveHash'),
             'creado': anterior.get('creado', int(time.time())),
         }
 
